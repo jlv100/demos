@@ -26,4 +26,4 @@ RUN conda install -y protobuf
 RUN conda install -y future
 RUN conda install -y graphviz pydot
 
-RUN apt-get install texlive-xetex
+RUN apt-get install -y texlive-xetex texlive-fonts-recommended texlive-pictures texlive-latex-extra
