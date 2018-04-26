@@ -1,4 +1,4 @@
-FROM nvidia/caffe
+FROM caffe2ai/caffe2
 
 WORKDIR /root
 

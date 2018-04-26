@@ -1,10 +1,80 @@
-FROM demos/caffe
+FROM nvidia/cuda:8.0-cudnn7-devel-ubuntu16.04
+LABEL maintainer="aaronmarkham@fb.com"
 
-COPY nccl-repo-ubuntu1604-2.1.15-ga-cuda8.0_1-1_amd64.deb ./
-RUN dpkg -i nccl-repo-ubuntu1604-2.1.15-ga-cuda8.0_1-1_amd64.deb
-RUN apt-get update
-RUN apt-get install libnccl2=2.1.15-1+cuda8.0 libnccl-dev=2.1.15-1+cuda8.0
+# caffe2 install with gpu support
 
-RUN conda install -y -c caffe2 caffe2-cuda8.0-cudnn7
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    libgtest-dev \
+    libiomp-dev \
+    libleveldb-dev \
+    liblmdb-dev \
+    libopencv-dev \
+    libopenmpi-dev \
+    libprotobuf-dev \
+    libsnappy-dev \
+    openmpi-bin \
+    openmpi-doc \
+    protobuf-compiler \
+    python-dev \
+    python-numpy \
+    python-pip \
+    python-pydot \
+    python-setuptools \
+    python-scipy \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN conda install -y pydot
+RUN pip install --no-cache-dir pip==9
+RUN pip install --no-cache-dir --upgrade setuptools wheel
+RUN pip install --no-cache-dir \
+    flask \
+    future \
+    graphviz \
+    hypothesis \
+    jupyter \
+    matplotlib \
+    numpy \
+    protobuf \
+    pydot \
+    python-nvd3 \
+    pyyaml \
+    requests \
+    scikit-image \
+    scipy \
+    setuptools \
+    six \
+    tornado
+
+########## INSTALLATION STEPS ###################
+RUN git clone --branch master --recursive https://github.com/caffe2/caffe2.git
+RUN cd caffe2 && mkdir build && cd build \
+    && cmake .. \
+    -DCUDA_ARCH_NAME=Manual \
+    -DCUDA_ARCH_BIN="35 52 60 61" \
+    -DCUDA_ARCH_PTX="61" \
+    -DUSE_NNPACK=OFF \
+    -DUSE_ROCKSDB=OFF \
+    -DUSE_CUDA=ON \
+    && make -j"$(nproc)" install \
+    && ldconfig \
+    && make clean \
+    && cd .. \
+    && rm -rf build
+
+ENV PYTHONPATH /usr/local
+
+EXPOSE 8888
+VOLUME /notebooks
+WORKDIR /notebooks
+ENTRYPOINT [ \
+	"jupyter", \
+	"notebook", \
+		"--allow-root", \
+		"--no-browser", \
+        "--ip='*'" \
+]
