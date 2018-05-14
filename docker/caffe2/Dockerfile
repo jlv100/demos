@@ -51,7 +51,11 @@ RUN pip install --no-cache-dir \
     tornado
 
 ########## INSTALLATION STEPS ###################
-RUN git clone --branch master --recursive https://github.com/caffe2/caffe2.git
+#RUN git clone --branch master --recursive https://github.com/caffe2/caffe2.git
+RUN git clone --branch master https://github.com/caffe2/caffe2.git
+RUN cd caffe2/third_party/aten && git checkout master
+RUN cd caffe2 && git pull --recurse-submodules && git submodule sync && git submodule update
+RUN ls caffe2/third_party/aten
 RUN cd caffe2 && mkdir build && cd build \
     && cmake .. \
     -DCUDA_ARCH_NAME=Manual \
@@ -65,8 +69,6 @@ RUN cd caffe2 && mkdir build && cd build \
     && make clean \
     && cd .. \
     && rm -rf build
-
-ENV PYTHONPATH /usr/local
 
 EXPOSE 8888
 VOLUME /notebooks
