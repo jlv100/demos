@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker build -t demos/miniconda2 miniconda2
-docker build -t demos/jupyter jupyter
+docker build --network host -t demos/miniconda2 miniconda2
+docker build --network host -t demos/jupyter jupyter
