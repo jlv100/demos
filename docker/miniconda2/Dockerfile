@@ -1,4 +1,5 @@
 FROM caffe2ai/caffe2
+#FROM ubuntu-16.04-cpu-all-options
 
 WORKDIR /root
 
