@@ -6,12 +6,15 @@ PORT=${1:-8888}
 OTHER=${2:-""}
 echo "Running notebooks listening on port $PORT..."
 
+NVIDIA=`which nvidia-smi > /dev/null && echo "--runtime=nvidia" || echo ""`
+
 docker run \
---runtime=nvidia \
+$NVIDIA \
 --detach \
 --rm \
 --name demo_notebooks \
 -p $PORT:8888 \
+--network host \
 -v $PWD/notebooks:/notebooks \
 $OTHER demos/jupyter
 
