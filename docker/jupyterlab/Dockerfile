@@ -11,10 +11,11 @@ RUN conda config \
 	--append channels r \
 	--append channels conda-forge
 
-RUN conda install -y -c r -c conda-forge \
+RUN conda install -y -c r -c bioconda -c conda-forge \
 	jupyterlab \
 	matplotlib \
     numpy \
+	pandas \
     scipy \
     scikit-learn \
     scikit-image \
@@ -25,7 +26,14 @@ RUN conda install -y -c r -c conda-forge \
 	r-ggally \
 	r-caret \
 	r-spls \
-	r-klaR 
+	r-klaR \
+	mxnet \
+	graphviz \
+	python-graphviz \
+	bioconductor-preprocesscore \
+	nodejs
+	
+RUN jupyter labextension install @pyviz/jupyterlab_pyviz
 
 WORKDIR /notebooks
 
