@@ -19,7 +19,7 @@ ENTRYPOINT [ \
 	"notebook", \
 		"--allow-root", \
 		"--no-browser", \
-        "--ip='*'" \
+        "--ip='0.0.0.0'" \
 ]
 
 RUN conda install -y protobuf
