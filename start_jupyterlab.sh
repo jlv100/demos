@@ -12,12 +12,11 @@ docker run \
 $NVIDIA \
 --detach \
 --rm \
---name demo_jupyterlab \
+--name demos \
 -p $PORT:8888 \
 --network host \
 -v $PWD/notebooks:/notebooks \
-$OTHER demos/jupyterlab
+$OTHER demos
 
-echo "Run the following to get the jupyter token:"
-echo "docker logs demo_jupyterlab"
+docker container logs -f demos
 
