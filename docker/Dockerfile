@@ -5,7 +5,8 @@ VOLUME /notebooks
 
 RUN apt-get update && apt-get install -y \
 	libxrender1 \
-	libcairo2
+	libcairo2 \
+    zip
 
 RUN conda update -n base -c defaults conda
 
@@ -14,10 +15,9 @@ RUN conda install -y \
 	matplotlib \
     numpy \
 	pandas \
-	nb_conda
-    
-RUN conda install -y \
-    nodejs
+	nb_conda \
+    nodejs \
+    && conda clean -y --all
     
 RUN jupyter labextension install @pyviz/jupyterlab_pyviz
 
@@ -92,6 +92,8 @@ RUN bash -c ". /opt/conda/etc/profile.d/conda.sh && conda activate $ENVNAME && c
     r-e1071 \
     libopenblas \
     bioconductor-preprocesscore \
+    bioconductor-affy \
+    bioconductor-affycoretools \
     r-rrcov \
     r-robustbase \
     r-reshape \
@@ -106,21 +108,32 @@ RUN echo "mice_proteins_pca_plsda" >> /tests/$ENVNAME.test
 RUN echo "mice_proteins_mxnet_autoencoder" >> /tests/$ENVNAME.test
 RUN echo "mice_proteins_mxnet_classify" >> /tests/$ENVNAME.test
 
+FROM jupyter AS apt
+
+WORKDIR /opt
+RUN wget https://downloads.thermofisher.com/APT/APT2.11.1/apt_2.11.1_linux_64_bit_x86_binaries.zip
+RUN unzip apt_2.11.1_linux_64_bit_x86_binaries.zip
+
 FROM jupyter AS demos
 COPY --from=fields /environments/fields.yml /environments/fields.yml
-RUN conda env create -f /environments/fields.yml
 COPY --from=fields /tests/fields.test /tests/fields.test
 
 COPY --from=breast_cancer /environments/breast_cancer.yml /environments/breast_cancer.yml
-RUN conda env create -f /environments/breast_cancer.yml
 COPY --from=breast_cancer /tests/breast_cancer.test /tests/breast_cancer.test
 
 COPY --from=mouse_learning /environments/mouse_learning.yml /environments/mouse_learning.yml
-RUN conda env create -f /environments/mouse_learning.yml
 COPY --from=mouse_learning /tests/mouse_learning.test /tests/mouse_learning.test
 
-RUN bash -c ". /opt/conda/etc/profile.d/conda.sh && conda activate fields"
-RUN bash -c ". /opt/conda/etc/profile.d/conda.sh && conda activate breast_cancer"
-RUN bash -c ". /opt/conda/etc/profile.d/conda.sh && conda activate mouse_learning"
+COPY --from=apt /opt/apt_2.11.1_linux_64_bitx86_binaries/bin/apt-probeset-summarize /bin/apt-probeset-summarize
 
 COPY run_tests.sh /run_tests.sh
+COPY create_environments.sh /create_environments.sh
+
+COPY entrypoint.sh /entrypoint.sh
+
+USER jupyter
+ENTRYPOINT [ \
+	"bash", \
+	"/entrypoint.sh" \
+]
+
