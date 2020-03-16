@@ -131,7 +131,7 @@ COPY create_environments.sh /create_environments.sh
 
 COPY entrypoint.sh /entrypoint.sh
 
-USER jupyter
+#USER jupyter
 ENTRYPOINT [ \
 	"bash", \
 	"/entrypoint.sh" \
